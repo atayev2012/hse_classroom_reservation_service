@@ -1,0 +1,11 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+.venv/
+
+# Environment variables
+.env
