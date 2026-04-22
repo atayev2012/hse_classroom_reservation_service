@@ -1,32 +1,61 @@
 services:
-  gateway:
-    build:
-      context: ./backend
-      dockerfile: ./gateway/Dockerfile
-    container_name: HSE_gateway
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend/gateway:/gateway
-      - ./backend/contracts:/contracts
-    depends_on:
-      - auth_service
-    #   pg:
-    #     condition: service_healthy
-  
   auth_service:
+    env_file: ".env"
     build:
       context: ./backend
       dockerfile: ./auth_service/Dockerfile
-    container_name: Auth_microservice
+      args:
+       - AUTH_PORT:${AUTH_PORT}
+    container_name: Auth_service
     ports:
-      - "5050:5050"
+      - "${AUTH_PORT}:${AUTH_PORT}"
     volumes:
       - ./backend/auth_service:/auth_service
       - ./backend/contracts:/contracts
     # depends_on:
     #   pg:
     #     condition: service_healthy
+
+
+  notification_service:
+    env_file: ".env"
+    build:
+      context: ./backend
+      dockerfile: ./notification_service/Dockerfile
+      args:
+       - NOTIFICATION_PORT:${NOTIFICATION_PORT}
+    container_name: Notification_service
+    ports:
+      - "${NOTIFICATION_PORT}:${NOTIFICATION_PORT}"
+    volumes:
+      - ./backend/notification_service:/notification_service
+      - ./backend/contracts:/contracts
+    depends_on:
+      - auth_service
+    #   pg:
+    #     condition: service_healthy
+
+
+  gateway:
+    env_file: ".env"
+    build:
+      context: ./backend
+      dockerfile: ./gateway/Dockerfile
+      args:
+        - GATEWAY_PORT:${GATEWAY_PORT}
+    container_name: HSE_gateway
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    volumes:
+      - ./backend/gateway:/gateway
+      - ./backend/contracts:/contracts
+    depends_on:
+      - auth_service
+      # - notificaion_service
+    #   pg:
+    #     condition: service_healthy
+  
+  
   pg:
     image: postgres:16.4
     env_file: ".env"
