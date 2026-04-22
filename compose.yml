@@ -1,16 +1,32 @@
 services:
   gateway:
     build:
-      context: ./backend/gateway
+      context: ./backend
+      dockerfile: ./gateway/Dockerfile
     container_name: HSE_gateway
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/gateway:/app
+      - ./backend/gateway:/gateway
+      - ./backend/contracts:/contracts
     depends_on:
-      pg:
-        condition: service_healthy
+      - auth_service
+    #   pg:
+    #     condition: service_healthy
   
+  auth_service:
+    build:
+      context: ./backend
+      dockerfile: ./auth_service/Dockerfile
+    container_name: Auth_microservice
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./backend/auth_service:/auth_service
+      - ./backend/contracts:/contracts
+    # depends_on:
+    #   pg:
+    #     condition: service_healthy
   pg:
     image: postgres:16.4
     env_file: ".env"
