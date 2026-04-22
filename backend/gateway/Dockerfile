@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+ARG GATEWAY_PORT
+
 WORKDIR /app
 
 COPY gateway/requirements.txt .
@@ -10,6 +12,10 @@ COPY gateway/ .
 
 COPY contracts/auth_service/ .
 
-EXPOSE 8000
+EXPOSE ${GATEWAY_PORT}
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${GATEWAY_PORT} --reload"]
+
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$GATEWAY_PORT", "--reload"]
+
+# CMD [python3, config.py]
