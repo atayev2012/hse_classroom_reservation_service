@@ -84,17 +84,15 @@ message ScheduleItem {
     repeated StudyGroup groups = 4;
 }
 
-
+// Schedule Item was added to the schedule
 message ScheduleAddedItemRequest {
-    string group_email = 1;
-    string tutor_email = 2;
-    string manager_email = 3;
-    string group_name = 4;
-    string tutor_name = 5;
-    string course_name = 6;
-    repeated ScheduleItem items = 7;
-
+    // email of a manager who added the item
+    string manager_email = 1;
+    // schedule item that was added
+    ScheduleItem schedule_item = 2;
 }
+
+
 
 message NotificationResponse {
     int32 status_code = 1;
