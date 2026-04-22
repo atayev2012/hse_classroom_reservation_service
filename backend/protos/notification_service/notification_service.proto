@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-package notification;
+package notification_service;
 
+// Notification microservice
 service NotificationService {
     // Send email with verification code to login
     rpc SendVerificationCode (VerificationCodeRequest) returns (NotificationResponse);
@@ -10,9 +11,9 @@ service NotificationService {
     // Send notification that item was added to schedule for specific group or education programme
     rpc SendScheduleAddedItem (ScheduleAddedItemRequest) returns (NotificationResponse);
     // Send notification that item was deleted from schedule for specific group or education programme
-    rpc SendScheduleDeletedItem () returns (NotificationResponse);
+    rpc SendScheduleDeletedItem (ScheduleDeletedItemRequest) returns (NotificationResponse);
     // Send notification that item was edited in schedule for specific group or education programme
-    rpc SendScheduleEditedItem () returns (NotificationResponse);
+    rpc SendScheduleEditedItem (ScheduleEditedItemRequest) returns (NotificationResponse);
 }
 
 // Send verification code request structure
@@ -25,21 +26,6 @@ message VerificationCodeRequest {
     string verification_url = 3;
     // validity of the code
     string code_valid_till = 4;
-}
-
-message ClassroomAddress {
-    string building_name = 1;
-    string building_address = 2;
-    string classroom_number = 3;
-}
-
-message ReservationNotificationRequest {
-    int64 id = 1;
-    string status = 2;
-    string owner_email = 3;
-    ClassroomAddress class_address = 4;
-    string date = 5;
-    repeated string time_slots = 6; 
 }
 
 // Study groups of a specific education programme
@@ -84,6 +70,18 @@ message ScheduleItem {
     repeated StudyGroup groups = 4;
 }
 
+// Notification of successfull and failed reservation
+message ReservationNotificationRequest {
+    // room reservation id
+    int64 id = 1;
+    // status of room reservation (booked | cancelled)
+    string status = 2;
+    // email of an employee who booked the room
+    string owner_email = 3;
+    // schedule building item that was reserved
+    ScheduleBuildingItem reservation_item = 4;
+}
+
 // Schedule Item was added to the schedule
 message ScheduleAddedItemRequest {
     // email of a manager who added the item
@@ -92,10 +90,29 @@ message ScheduleAddedItemRequest {
     ScheduleItem schedule_item = 2;
 }
 
+// Schedule Item was deleted from the schedule
+message ScheduleDeletedItemRequest {
+    // email of a manager who deleted the item
+    string manager_email = 1;
+    // schedule item that was deleted
+    ScheduleItem schedule_item = 2;
+}
+// Schedule Item was edited
+message ScheduleEditedItemRequest {
+    // email of a manager who edited the item
+    string manager_email = 1;
+    // schedule item before editing
+    ScheduleItem unedited_item = 2;
+    // schedule item after editing
+    ScheduleItem edited_item = 3;
+}
 
-
+// Response message to any request
 message NotificationResponse {
+    // status code for any type of response (success=1, fail=0)
     int32 status_code = 1;
+    // response status with text ("success", "fail")
     string status = 2;
+    // detailed explanation if success or fail and why
     string details = 3;
 }
