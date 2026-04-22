@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+    <html lang="ru">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Подтверждение входа</title>
+      </head>
+      <body style="margin:0;padding:0;background-color:#f4f6f8;font-family:Arial,sans-serif;">
+        <div style="max-width:640px;margin:40px auto;background:#ffffff;border-radius:14px;
+                    border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.06);">
+
+          <!-- Header -->
+          <div style="background:#1d4ed8;padding:24px 32px;">
+            <h1 style="margin:0;color:#ffffff;font-size:24px;">
+              Подтверждение входа
+            </h1>
+          </div>
+
+          <!-- Content -->
+          <div style="padding:32px;">
+
+            <p style="font-size:16px;color:#111827;margin-bottom:16px;">
+              Здравствуйте!
+            </p>
+
+            <p style="font-size:16px;color:#374151;margin-bottom:16px;">
+              Мы получили запрос на вход в ваш аккаунт.
+            </p>
+
+            <!-- Login info -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin:24px 0;">
+              <p style="margin:0 0 10px 0;"><strong>Email:</strong> {user_email}</p>
+              <p style="margin:0 0 10px 0;"><strong>Время:</strong> {login_time}</p>
+              <p style="margin:0;"><strong>IP-адрес:</strong> {ip_address}</p>
+            </div>
+
+            <!-- Verification code -->
+            <p style="font-size:16px;color:#374151;margin-bottom:8px;">
+              Введите этот код для подтверждения входа:
+            </p>
+
+            <div style="text-align:center;margin:24px 0;">
+              <span style="display:inline-block;font-size:32px;letter-spacing:8px;
+                           font-weight:bold;color:#111827;background:#f3f4f6;
+                           padding:16px 24px;border-radius:10px;border:1px solid #e5e7eb;">
+                {verification_code}
+              </span>
+            </div>
+
+            <p style="font-size:14px;color:#6b7280;text-align:center;">
+              Код действителен ограниченное время
+            </p>
+
+            <!-- Button -->
+            <p style="font-size:16px;color:#374151;margin-top:24px;text-align:center;">
+              Или подтвердите вход одним нажатием:
+            </p>
+
+            <div style="text-align:center;margin:32px 0;">
+              <a href="{confirm_url}"
+                 style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;
+                        font-size:16px;font-weight:bold;padding:14px 28px;border-radius:10px;">
+                Подтвердить вход
+              </a>
+            </div>
+
+            <!-- Security note -->
+            <p style="font-size:15px;color:#374151;margin-bottom:16px;">
+              Если это были не вы — немедленно смените пароль и проверьте безопасность аккаунта.
+            </p>
+
+            <!-- Fallback link -->
+            <p style="font-size:14px;color:#6b7280;">
+              Если кнопка не работает, используйте ссылку:
+            </p>
+
+            <p style="font-size:14px;word-break:break-all;color:#2563eb;">
+              {confirm_url}
+            </p>
+
+            <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
+
+            <p style="font-size:12px;color:#9ca3af;">
+              Это автоматическое письмо, не отвечайте на него.
+            </p>
+
+          </div>
+        </div>
+      </body>
+    </html>
