@@ -8,8 +8,6 @@ COPY gateway/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY gateway/ .
-
 COPY contracts/auth_service/ .
 
 EXPOSE ${GATEWAY_PORT}
