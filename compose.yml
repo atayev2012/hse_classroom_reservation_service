@@ -23,6 +23,7 @@ services:
       context: ./backend
       dockerfile: ./notification_service/Dockerfile
       args:
+       - NOTIFICATION_HOST:${NOTIFICATION_HOST}
        - NOTIFICATION_PORT:${NOTIFICATION_PORT}
     container_name: Notification_service
     ports:
@@ -30,8 +31,8 @@ services:
     volumes:
       - ./backend/notification_service:/notification_service
       - ./backend/contracts:/contracts
-    depends_on:
-      - auth_service
+    # depends_on:
+    #   - auth_service
     #   pg:
     #     condition: service_healthy
 
