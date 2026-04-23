@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package notification_service;
+
+// Notification microservice
+service NotificationService {
+    // Send email with verification code to login
+    rpc SendVerificationCode (VerificationCodeRequest) returns (NotificationResponse);
+    // Send notification that reservation was made / moved / cancelled via email
+    rpc SendReservationNotification (ReservationNotificationRequest) returns (NotificationResponse);
+    // Send notification that item was added to schedule for specific group or education programme
+    rpc SendScheduleAddedItem (ScheduleAddedItemRequest) returns (NotificationResponse);
+    // Send notification that item was deleted from schedule for specific group or education programme
+    rpc SendScheduleDeletedItem (ScheduleDeletedItemRequest) returns (NotificationResponse);
+    // Send notification that item was edited in schedule for specific group or education programme
+    rpc SendScheduleEditedItem (ScheduleEditedItemRequest) returns (NotificationResponse);
+}
+
+// Send verification code request structure
+message VerificationCodeRequest {
+    // email address of recipient
+    string email = 1;
+    // verification code
+    string code = 2;
+    // verification url for faster input
+    string verification_url = 3;
+    // validity of the code
+    string code_valid_till = 4;
+}
+
+// Study groups of a specific education programme
+message StudyGroup {
+    // education programme name that contains the group
+    string programme_name = 1;
+    // code name of the group. Ex: 22SE-3
+    string group_name = 2;
+    // email address of a group
+    string group_email = 3;
+}
+
+// Item of room in ScheduleBuildingItem
+message ScheduleRoomItem {
+    // date when room is occupied
+    string date = 1;
+    // list of timeslots when room is occupied
+    repeated string timeslots = 2;
+    // occupied room number
+    string room_number = 3;
+}
+
+// Item of building in ScheduleItem
+message ScheduleBuildingItem {
+    // building name that contains occupied room
+    string building_name = 1;
+    // building address that contains occupied room
+    string building_address = 2;
+    // list of room items that are occupied in the building
+    repeated ScheduleRoomItem room_items = 3;
+}
+
+// Schedule item 
+message ScheduleItem {
+    // name of the course in the schedule item
+    string course_name = 1;
+    // type of the course (lection | seminar | exam)
+    string course_type = 2;
+    // Name of the tutor
+    string tutor_name = 3;
+    // list of groups that enrolled the course
+    repeated StudyGroup groups = 4;
+}
+
+// Notification of successfull and failed reservation
+message ReservationNotificationRequest {
+    // room reservation id
+    int64 id = 1;
+    // status of room reservation (booked | cancelled)
+    string status = 2;
+    // email of an employee who booked the room
+    string owner_email = 3;
+    // schedule building item that was reserved
+    ScheduleBuildingItem reservation_item = 4;
+}
+
+// Schedule Item was added to the schedule
+message ScheduleAddedItemRequest {
+    // email of a manager who added the item
+    string manager_email = 1;
+    // schedule item that was added
+    ScheduleItem schedule_item = 2;
+}
+
+// Schedule Item was deleted from the schedule
+message ScheduleDeletedItemRequest {
+    // email of a manager who deleted the item
+    string manager_email = 1;
+    // schedule item that was deleted
+    ScheduleItem schedule_item = 2;
+}
+// Schedule Item was edited
+message ScheduleEditedItemRequest {
+    // email of a manager who edited the item
+    string manager_email = 1;
+    // schedule item before editing
+    ScheduleItem unedited_item = 2;
+    // schedule item after editing
+    ScheduleItem edited_item = 3;
+}
+
+// Response message to any request
+message NotificationResponse {
+    // status code for any type of response (success=1, fail=0)
+    int32 status_code = 1;
+    // response status with text ("success", "fail")
+    string status = 2;
+    // detailed explanation if success or fail and why
+    string details = 3;
+}
