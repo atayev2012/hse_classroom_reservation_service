@@ -25,6 +25,7 @@ async def login(request: UserLogin):
     print(f"Gateway sends data to GRPC server")
 
     # Connect to the grpc server
+    # TODO: Change port as per .env variables
     with grpc.insecure_channel("auth_service:5050") as channel:
         stub = auth_service_pb2_grpc.AuthServiceStub(channel)
 
