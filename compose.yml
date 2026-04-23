@@ -33,8 +33,8 @@ services:
       - ./backend/contracts:/contracts
     # depends_on:
     #   - auth_service
-    #   pg:
-    #     condition: service_healthy
+    #   - pg:
+    #       condition: service_healthy
 
 
   gateway:
@@ -44,6 +44,8 @@ services:
       dockerfile: ./gateway/Dockerfile
       args:
         - GATEWAY_PORT:${GATEWAY_PORT}
+        - AUTH_PORT:${AUTH_PORT}
+        - NOTIFICATION_PORT:${NOTIFICATION_PORT}
     container_name: HSE_gateway
     ports:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
@@ -53,15 +55,9 @@ services:
       - ./backend/contracts:/contracts
     depends_on:
       - auth_service
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./backend/gateway
-          target: /app
-      # - notificaion_service
-    #   pg:
-    #     condition: service_healthy
-  
+      - notification_service
+      # - pg:
+      #     condition: service_healthy
   
   pg:
     image: postgres:16.4
