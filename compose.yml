@@ -49,9 +49,15 @@ services:
       - "${GATEWAY_PORT}:${GATEWAY_PORT}"
     volumes:
       - ./backend/gateway:/gateway
+      - ./backend/gateway/app:/app/app
       - ./backend/contracts:/contracts
     depends_on:
       - auth_service
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/gateway
+          target: /app
       # - notificaion_service
     #   pg:
     #     condition: service_healthy
