@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package notification_service;
+
+service NotificationService {
+    rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+
+    // Auth service notifications
+    rpc SendVerificationCode (VerificationCodeRequest) returns (NotificationResponse);
+    rpc SendLoginSuccessful (LoginSuccessfulRequest) returns (NotificationResponse);
+
+    // Booking service notifications
+    rpc SendReservationNotification (ReservationNotificationRequest) returns (NotificationResponse);
+
+    // Schedule service notifications
+    rpc SendSchedulePublished (SchedulePublishedRequest) returns (NotificationResponse);
+    rpc SendScheduleAddedItem (ScheduleAddedItemRequest) returns (NotificationResponse);
+    rpc SendScheduleDeletedItem (ScheduleDeletedItemRequest) returns (NotificationResponse);
+    rpc SendScheduleEditedItem (ScheduleEditedItemRequest) returns (NotificationResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool success = 1;
+    string status = 2;
+}
+
+message VerificationCodeRequest {
+    string email = 1;
+    string code = 2;
+    string verification_url = 3;
+    string code_valid_till = 4;
+    string ip_address = 5;
+    string request_datetime = 6;
+    string device_info = 7;
+}
+
+message LoginSuccessfulRequest {
+    string email = 1;
+    string ip_address = 2;
+    string request_datetime = 3;
+    string device_info = 4;
+}
+
+message ReservationNotificationRequest {
+    string building_name = 1;
+    string room_number = 2;
+    string event_date = 3;
+    string time_slot = 4;
+    string status = 5;
+    string email = 6;
+}
+
+message SchedulePublishedRequest {
+    string manager_email = 1;
+    string schedule_name = 2;
+    string module_name = 3;
+    StudyGroup group = 4;
+    repeated ScheduleItem schedule_items = 5;
+}
+
+message ScheduleAddedItemRequest {
+    string manager_email = 1;
+    ScheduleItem schedule_item = 2;
+}
+
+message ScheduleDeletedItemRequest {
+    string manager_email = 1;
+    ScheduleItem schedule_item = 2;
+}
+
+message ScheduleEditedItemRequest {
+    string manager_email = 1;
+    ScheduleItem unedited_item = 2;
+    ScheduleItem edited_item = 3;
+}
+
+message NotificationResponse {
+    bool success = 1;
+    string status = 2;
+    string details = 3;
+}
+
+message StudyGroup {
+    string programme_name = 1;
+    string group_name = 2;
+    string group_email = 3;
+}
+
+message ScheduleItem {
+    optional int64 id = 1;
+    string title = 2;
+    string item_type = 3;
+    optional int64 instructor_id = 4;
+    string instructor_name = 5;
+    optional int64 building_id = 6;
+    string building_address = 7;
+    optional int64 room_id = 8;
+    string room_number = 9;
+    string date = 10;
+    string time_slot = 11;
+    string schedule_name = 12;
+    string module_name = 13;
+    StudyGroup group = 14;
+}

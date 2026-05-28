@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package auth_service;
+
+service AuthService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  // Login with email
+  rpc Login(User) returns (UserVerification);
+  // Verification of the code
+  rpc VerifyCode(UserVerification) returns (VerifyCodeResponse);
+  // Refresh only access token based on email
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  // Get user data by sending user_id only
+  rpc Me(User) returns (UserResponse);
+
+  // Get all student users based on all | study_program | group_name 
+  rpc GetAllStudents(AllStudentsRequest) returns (AllStudentsResponse);
+  // Get all users based on type and deletion status
+  rpc GetAllUsers(AllUsersRequest) returns (AllUsersResponse);
+  // Get single user based on provided data
+  rpc GetSingleUser(User) returns (UserResponse);
+  // Create user with provided data
+  rpc AddUser(User) returns (UserResponse);
+  // Update user fields with provided data
+  rpc UpdateUser(User) returns (UserResponse);
+  // Soft delete user 
+  rpc DeleteUser(User) returns (UserResponse);
+}
+
+message UserVerification {
+  int64 user_id = 1;
+  optional string verification_code = 2;
+  optional string ip_address = 3;
+  optional string request_datetime = 4;
+  optional string device_info = 5;
+}
+
+message EmployeeProfile {
+  optional int64 user_id = 1;
+  optional string department_name = 2;
+  optional string position = 3;
+}
+
+message StudentProfile {
+  optional int64 user_id = 1;
+  optional string group_name = 2;
+  optional string study_program = 3;
+}
+
+message User {
+  optional int64 id = 1;
+  optional string email = 2;
+  optional string type = 3;
+  optional string first_name = 4;
+  optional string last_name = 5;
+  optional string middle_name = 6;
+  optional bool is_active = 7;
+  optional bool is_deleted = 8;
+  optional UserVerification verification = 9;
+  optional StudentProfile student_profile = 10;
+  optional EmployeeProfile employee_profile = 11;
+  optional string ip_address = 12;
+  optional string request_datetime = 13;
+  optional string device_info = 14;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool success = 1;
+  string status = 2;
+}
+
+message UserResponse {
+  bool success = 1;
+  string status = 2;
+  User user = 3;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string status = 2;
+  User user = 3;
+}
+
+message VerifyCodeRequest {
+  string email = 1;
+  string verification_code = 2;
+}
+
+message VerifyCodeResponse {
+  bool success = 1;
+  string status = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+}
+
+message RefreshTokenRequest {
+  int64 user_id = 1;
+}
+
+message RefreshTokenResponse {
+  bool success = 1;
+  string status = 2;
+  string access_token = 3;
+}
+
+message AllStudentsRequest {
+  optional string study_program = 1;
+  optional string group_name = 2;
+}
+
+message AllStudentsResponse {
+  bool success = 1;
+  string status = 2;
+  repeated User users = 3;
+}
+
+message AllUsersRequest {
+  optional string type = 1;
+  optional bool is_deleted = 2;
+  optional int32 limit = 3;
+  optional int32 offset = 4;
+  repeated string types = 5;
+  optional string email = 6;
+  optional string first_name = 7;
+  optional string last_name = 8;
+  optional string middle_name = 9;
+  optional bool is_active = 10;
+  optional string group_name = 11;
+  optional string study_program = 12;
+  optional string department_name = 13;
+  optional string position = 14;
+  optional int64 id = 15;
+  optional string full_name = 16;
+}
+
+message AllUsersResponse {
+  bool success = 1;
+  string status = 2;
+  repeated User users = 3;
+  int32 total_count = 4;
+}

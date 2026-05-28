@@ -1,0 +1,349 @@
+syntax = "proto3";
+
+package schedule_service;
+
+service ScheduleService {
+    rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+
+    // Academic years
+    rpc AddAcademicYear (AcademicYear) returns (AcademicYearResponse);
+    rpc UpdateAcademicYear (AcademicYear) returns (AcademicYearResponse);
+    rpc DeleteAcademicYear (AcademicYear) returns (AcademicYearResponse);
+    rpc GetSingleAcademicYear (AcademicYear) returns (AcademicYearResponse);
+    rpc GetAllAcademicYears (AllAcademicYearsRequest) returns (AllAcademicYearsResponse);
+
+    // Education modules
+    rpc AddModule (Module) returns (ModuleResponse);
+    rpc UpdateModule (Module) returns (ModuleResponse);
+    rpc DeleteModule (Module) returns (ModuleResponse);
+    rpc GetSingleModule (Module) returns (ModuleResponse);
+    rpc GetAllModules (AllModulesRequest) returns (AllModulesResponse);
+
+    // Holidays
+    rpc AddHoliday (Holiday) returns (HolidayResponse);
+    rpc UpdateHoliday (Holiday) returns (HolidayResponse);
+    rpc DeleteHoliday (Holiday) returns (HolidayResponse);
+    rpc GetSingleHoliday (Holiday) returns (HolidayResponse);
+    rpc GetAllHolidays (AllHolidaysRequest) returns (AllHolidaysResponse);
+
+    // Programmes
+    rpc AddProgramme (Programme) returns (ProgrammeResponse);
+    rpc UpdateProgramme (Programme) returns (ProgrammeResponse);
+    rpc DeleteProgramme (Programme) returns (ProgrammeResponse);
+    rpc GetSingleProgramme (Programme) returns (ProgrammeResponse);
+    rpc GetAllProgrammes (AllProgrammesRequest) returns (AllProgrammesResponse);
+
+    // Courses
+    rpc AddCourse (Course) returns (CourseResponse);
+    rpc UpdateCourse (Course) returns (CourseResponse);
+    rpc DeleteCourse (Course) returns (CourseResponse);
+    rpc GetSingleCourse (Course) returns (CourseResponse);
+    rpc GetAllCourses (AllCoursesRequest) returns (AllCoursesResponse);
+
+    // Groups
+    rpc AddGroup (Group) returns (GroupResponse);
+    rpc UpdateGroup (Group) returns (GroupResponse);
+    rpc DeleteGroup (Group) returns (GroupResponse);
+    rpc GetSingleGroup (Group) returns (GroupResponse);
+    rpc GetAllGroups (AllGroupsRequest) returns (AllGroupsResponse);
+
+    // Group students
+    rpc AddGroupStudent (GroupStudent) returns (GroupStudentResponse);
+    rpc UpdateGroupStudent (GroupStudent) returns (GroupStudentResponse);
+    rpc DeleteGroupStudent (GroupStudent) returns (GroupStudentResponse);
+    rpc GetSingleGroupStudent (GroupStudent) returns (GroupStudentResponse);
+    rpc GetAllGroupStudents (AllGroupStudentsRequest) returns (AllGroupStudentsResponse);
+
+    // Schedules
+    rpc AddSchedule (Schedule) returns (ScheduleResponse);
+    rpc UpdateSchedule (Schedule) returns (ScheduleResponse);
+    rpc DeleteSchedule (Schedule) returns (ScheduleResponse);
+    rpc GetSingleSchedule (Schedule) returns (ScheduleResponse);
+    rpc GetAllSchedules (AllSchedulesRequest) returns (AllSchedulesResponse);
+    rpc PublishSchedule (Schedule) returns (ScheduleResponse);
+    rpc UnpublishSchedule (Schedule) returns (ScheduleResponse);
+
+    // Schedule items
+    rpc AddScheduleItem (ScheduleItem) returns (ScheduleItemResponse);
+    rpc UpdateScheduleItem (ScheduleItem) returns (ScheduleItemResponse);
+    rpc DeleteScheduleItem (ScheduleItem) returns (ScheduleItemResponse);
+    rpc GetSingleScheduleItem (ScheduleItem) returns (ScheduleItemResponse);
+    rpc GetAllScheduleItems (AllScheduleItemsRequest) returns (AllScheduleItemsResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool success = 1;
+    string status = 2;
+}
+
+message Empty {}
+
+message Pagination {
+    optional int32 limit = 1;
+    optional int32 offset = 2;
+}
+
+message AcademicYear {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string start_date = 3;
+    optional string end_date = 4;
+    repeated Module modules = 5;
+    repeated Holiday holidays = 6;
+}
+
+message Module {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string start_date = 3;
+    optional string end_date = 4;
+    optional int64 academic_year_id = 5;
+    repeated Schedule schedules = 6;
+}
+
+message Holiday {
+    optional int64 id = 1;
+    optional string date = 2;
+    optional string name = 3;
+    optional string description = 4;
+    optional int64 academic_year_id = 5;
+}
+
+message Programme {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    repeated Group groups = 4;
+    repeated Course courses = 5;
+}
+
+message CourseInstructor {
+    optional int64 id = 1;
+    optional int64 course_id = 2;
+    optional int64 instructor_id = 3;
+    optional string instructor_name = 4;
+}
+
+message Course {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional int64 programme_id = 4;
+    repeated CourseInstructor instructors = 5;
+}
+
+message Group {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string email = 3;
+    optional int64 programme_id = 4;
+    repeated GroupStudent students = 5;
+    repeated Schedule schedules = 6;
+}
+
+message GroupStudent {
+    optional int64 user_id = 1;
+    optional string user_email = 2;
+    optional int64 group_id = 3;
+}
+
+message Schedule {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional int64 module_id = 3;
+    optional int64 group_id = 4;
+    optional bool is_published = 5;
+    repeated ScheduleItem schedule_items = 6;
+}
+
+message ScheduleItem {
+    optional int64 id = 1;
+    optional string title = 2;
+    optional string item_type = 3;
+    optional int64 instructor_id = 4;
+    optional string instructor_name = 5;
+    optional int64 building_id = 6;
+    optional string building_address = 7;
+    optional int64 room_id = 8;
+    optional string room_number = 9;
+    optional string date = 10;
+    optional string time_slot = 11;
+    optional int64 schedule_id = 12;
+    optional int64 booking_id = 13;
+    optional int64 course_id = 14;
+}
+
+message AcademicYearResponse {
+    bool success = 1;
+    string status = 2;
+    AcademicYear academic_year = 3;
+}
+
+message AllAcademicYearsRequest {
+    optional int32 limit = 1;
+    optional int32 offset = 2;
+}
+
+message AllAcademicYearsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated AcademicYear academic_years = 3;
+}
+
+message ModuleResponse {
+    bool success = 1;
+    string status = 2;
+    Module module = 3;
+}
+
+message AllModulesRequest {
+    optional int64 academic_year_id = 1;
+    optional string active_on = 2;
+    optional int32 limit = 3;
+    optional int32 offset = 4;
+}
+
+message AllModulesResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Module modules = 3;
+}
+
+message HolidayResponse {
+    bool success = 1;
+    string status = 2;
+    Holiday holiday = 3;
+}
+
+message AllHolidaysRequest {
+    optional int64 academic_year_id = 1;
+    optional string date_from = 2;
+    optional string date_to = 3;
+    optional int32 limit = 4;
+    optional int32 offset = 5;
+}
+
+message AllHolidaysResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Holiday holidays = 3;
+}
+
+message ProgrammeResponse {
+    bool success = 1;
+    string status = 2;
+    Programme programme = 3;
+}
+
+message AllProgrammesRequest {
+    optional int32 limit = 1;
+    optional int32 offset = 2;
+}
+
+message AllProgrammesResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Programme programmes = 3;
+}
+
+message CourseResponse {
+    bool success = 1;
+    string status = 2;
+    Course course = 3;
+}
+
+message AllCoursesRequest {
+    optional int64 programme_id = 1;
+    optional int64 instructor_id = 2;
+    optional int32 limit = 3;
+    optional int32 offset = 4;
+}
+
+message AllCoursesResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Course courses = 3;
+}
+
+message GroupResponse {
+    bool success = 1;
+    string status = 2;
+    Group group = 3;
+}
+
+message AllGroupsRequest {
+    optional int64 programme_id = 1;
+    optional int32 limit = 2;
+    optional int32 offset = 3;
+}
+
+message AllGroupsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Group groups = 3;
+}
+
+message GroupStudentResponse {
+    bool success = 1;
+    string status = 2;
+    GroupStudent student = 3;
+}
+
+message AllGroupStudentsRequest {
+    optional int64 group_id = 1;
+    optional int32 limit = 2;
+    optional int32 offset = 3;
+}
+
+message AllGroupStudentsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated GroupStudent students = 3;
+}
+
+message ScheduleResponse {
+    bool success = 1;
+    string status = 2;
+    Schedule schedule = 3;
+}
+
+message AllSchedulesRequest {
+    optional int64 module_id = 1;
+    optional int64 group_id = 2;
+    optional int32 limit = 3;
+    optional int32 offset = 4;
+    optional bool is_published = 5;
+}
+
+message AllSchedulesResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Schedule schedules = 3;
+}
+
+message ScheduleItemResponse {
+    bool success = 1;
+    string status = 2;
+    ScheduleItem schedule_item = 3;
+}
+
+message AllScheduleItemsRequest {
+    optional int64 schedule_id = 1;
+    optional int64 instructor_id = 2;
+    optional int64 building_id = 3;
+    optional int64 room_id = 4;
+    optional string date_from = 5;
+    optional string date_to = 6;
+    optional string time_slot = 7;
+    optional int32 limit = 8;
+    optional int32 offset = 9;
+    optional bool is_published = 10;
+}
+
+message AllScheduleItemsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated ScheduleItem schedule_items = 3;
+}

@@ -1,0 +1,157 @@
+syntax = "proto3";
+
+package booking_service;
+
+// Notification microservice
+service BookingService{
+    rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+
+    // Add new building to database
+    rpc AddBuilding (Building) returns (BuildingResponse);
+    // Update building fields by finding it by id
+    rpc UpdateBuilding (Building) returns (BuildingResponse);
+    // Delete building by finding it by id
+    rpc DeleteBuilding (Building) returns (BuildingResponse);
+    // Get all buildings
+    rpc GetAllBuildings (Empty) returns (AllBuildingsResponse);
+    // Get signle building by id and load all of it's relationships
+    rpc GetSingleBuilding (Building) returns (BuildingResponse);
+
+
+    // Add room to Building in database
+    rpc AddRoom (Room) returns (RoomResponse);
+    // Update room fields by finding it by id
+    rpc UpdateRoom (Room) returns (RoomResponse);
+    // Delete room by finding it by id
+    rpc DeleteRoom (Room) returns (RoomResponse);
+    // Get all rooms of the building and load all of it's relationships
+    rpc GetAllRooms (Building) returns (AllRoomsResponse);
+    // Get signle room by id and load all of it's relationships
+    rpc GetSingleRoom (Room) returns (RoomResponse);
+
+    // Add equipment option to database
+    rpc AddEquipment (Equipment) returns (EquipmentResponse);
+    // Update equipment option by id
+    rpc UpdateEquipment (Equipment) returns (EquipmentResponse);
+    // Delete equipment option by id
+    rpc DeleteEquipment (Equipment) returns (EquipmentResponse);
+    // Get all equipment options
+    rpc GetAllEquipment (Empty) returns (AllEquipmentResponse);
+    // Get single equipment option by id
+    rpc GetSingleEquipment (Equipment) returns (EquipmentResponse);
+
+
+    // Add booking item to database
+    rpc AddBooking (Booking) returns (BookingResponse);
+    // Update booking item fields by finding it by id    
+    rpc UpdateBooking (Booking) returns (BookingResponse);
+    // Delete booking item by finding it by id
+    rpc DeleteBooking (Booking) returns (BookingResponse);
+    // Get all booking items for a building | room | date | time_slot | user_id
+    rpc GetAllBookings (AllBookingsRequest) returns (AllBookingsResponse);
+    // Get a single booking item by booking id
+    rpc GetSingleBooking (Booking) returns (BookingResponse);
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+    bool success = 1;
+    string status = 2;
+}
+
+message Empty {}
+
+message Equipment {
+    optional int64 id = 1;
+    optional string name = 2;
+    int64 qty = 3;
+    optional string description = 4;
+}
+
+message Room {
+    optional int64 id = 1;
+    optional int64 building_id = 2;
+    optional string room_number = 3;
+    repeated Equipment equipment = 4;
+    optional bool is_zoom = 5;
+    optional bool is_active = 6; 
+    optional bool replace_equipment = 7;
+}
+
+message Building {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional string address = 3;
+    repeated Room rooms = 4;
+}
+
+message AllRoomsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Room rooms = 3;
+}
+
+message RoomResponse {
+    bool success = 1;
+    string status = 2;
+    Room room = 3;
+}
+
+message AllEquipmentResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Equipment equipment = 3;
+}
+
+message EquipmentResponse {
+    bool success = 1;
+    string status = 2;
+    Equipment equipment = 3;
+}
+
+message AllBuildingsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Building buildings = 3;
+}
+
+message BuildingResponse {
+    bool success = 1;
+    string status = 2;
+    Building building = 3;
+}
+
+message Booking {
+    optional int64 id = 1;
+    optional string event_type = 2;
+    optional string event_title = 3;
+    optional string event_description = 4;
+    optional string event_date = 5;
+    repeated string event_time_slot = 6;
+    optional int64 user_id = 7;
+    optional int64 building_id = 8;
+    optional int64 room_id = 9;
+    optional bool is_active = 10;
+    optional bool is_deleted = 11;
+}
+
+message BookingResponse {
+    bool success = 1;
+    string status = 2;
+    Booking booking = 3;
+}
+
+message AllBookingsRequest {
+    optional int64 building_id = 1;
+    optional int64 room_id = 2;
+    optional string event_date = 3;
+    repeated string timeslots = 4;
+    optional int64 user_id = 5;
+}
+
+message AllBookingsResponse {
+    bool success = 1;
+    string status = 2;
+    repeated Booking bookings = 3;
+}
