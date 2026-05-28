@@ -1,80 +1,275 @@
 services:
+  auth_db:
+    image: postgres:16
+    container_name: auth_db
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_USER: ${AUTH_DB_USERNAME}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      PGPORT: ${AUTH_DB_PORT}
+    ports:
+      - "${AUTH_DB_PORT}:${AUTH_DB_PORT}"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USERNAME} -d ${AUTH_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_network
+
+  notification_db:
+    image: postgres:16
+    container_name: notification_db
+    environment:
+      POSTGRES_DB: ${NOTIFICATION_DB_NAME}
+      POSTGRES_USER: ${NOTIFICATION_DB_USERNAME}
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      PGPORT: ${NOTIFICATION_DB_PORT}
+    ports:
+      - "${NOTIFICATION_DB_PORT}:${NOTIFICATION_DB_PORT}"
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${NOTIFICATION_DB_USERNAME} -d ${NOTIFICATION_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_network
+
+  booking_db:
+    image: postgres:16
+    container_name: booking_db
+    environment:
+      POSTGRES_DB: ${BOOKING_DB_NAME}
+      POSTGRES_USER: ${BOOKING_DB_USERNAME}
+      POSTGRES_PASSWORD: ${BOOKING_DB_PASSWORD}
+      PGPORT: ${BOOKING_DB_PORT}
+    ports:
+      - "${BOOKING_DB_PORT}:${BOOKING_DB_PORT}"
+    volumes:
+      - booking_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BOOKING_DB_USERNAME} -d ${BOOKING_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_network
+
+  schedule_db:
+    image: postgres:16
+    container_name: schedule_db
+    environment:
+      POSTGRES_DB: ${SCHEDULE_DB_NAME}
+      POSTGRES_USER: ${SCHEDULE_DB_USERNAME}
+      POSTGRES_PASSWORD: ${SCHEDULE_DB_PASSWORD}
+      PGPORT: ${SCHEDULE_DB_PORT}
+    ports:
+      - "${SCHEDULE_DB_PORT}:${SCHEDULE_DB_PORT}"
+    volumes:
+      - schedule_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SCHEDULE_DB_USERNAME} -d ${SCHEDULE_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend_network
+
   auth_service:
-    env_file: ".env"
     build:
       context: ./backend
-      dockerfile: ./auth_service/Dockerfile
+      dockerfile: ./services/auth_service/Dockerfile
       args:
-       - AUTH_PORT:${AUTH_PORT}
-    container_name: Auth_service
+        AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT:-5534}
+    container_name: auth_service
+    environment:
+      AUTH_DB_NAME: ${AUTH_DB_NAME}
+      AUTH_DB_USERNAME: ${AUTH_DB_USERNAME}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      AUTH_DB_HOST: auth_db
+      AUTH_DB_PORT: ${AUTH_DB_PORT}
+      AUTH_SERVICE_HOST: 0.0.0.0
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT:-5534}
+      AUTH_JWT_SECRET_KEY: ${AUTH_JWT_SECRET_KEY}
+      AUTH_JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM}
+      AUTH_JWT_ACCESS_EXPIRE_MINUTES: ${AUTH_JWT_ACCESS_EXPIRE_MINUTES}
+      AUTH_JWT_REFRESH_EXPIRE_DAYS: ${AUTH_JWT_REFRESH_EXPIRE_DAYS}
+      NOTIFICATION_SERVICE_HOST: notification_service
+      NOTIFICATION_SERVICE_PORT: ${NOTIFICATION_SERVICE_PORT:-5533}
     ports:
-      - "${AUTH_PORT}:${AUTH_PORT}"
+      - "${AUTH_SERVICE_PORT:-5534}:${AUTH_SERVICE_PORT:-5534}"
     volumes:
-      - ./backend/auth_service:/auth_service
-      - ./backend/contracts:/contracts
-    # depends_on:
-    #   pg:
-    #     condition: service_healthy
-
+      - ./logs:/app/logs
+    depends_on:
+      auth_db:
+        condition: service_healthy
+      notification_service:
+        condition: service_healthy
+    networks:
+      - backend_network
 
   notification_service:
-    env_file: ".env"
     build:
       context: ./backend
-      dockerfile: ./notification_service/Dockerfile
+      dockerfile: ./services/notification_service/Dockerfile
       args:
-       - NOTIFICATION_HOST:${NOTIFICATION_HOST}
-       - NOTIFICATION_PORT:${NOTIFICATION_PORT}
-    container_name: Notification_service
+        NOTIFICATION_SERVICE_PORT: ${NOTIFICATION_SERVICE_PORT:-5533}
+    container_name: notification_service
+    environment:
+      NOTIFICATION_DB_NAME: ${NOTIFICATION_DB_NAME}
+      NOTIFICATION_DB_USERNAME: ${NOTIFICATION_DB_USERNAME}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      NOTIFICATION_DB_HOST: notification_db
+      NOTIFICATION_DB_PORT: ${NOTIFICATION_DB_PORT}
+      NOTIFICATION_SERVICE_HOST: 0.0.0.0
+      NOTIFICATION_SERVICE_PORT: ${NOTIFICATION_SERVICE_PORT:-5533}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-HSE Booking}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-false}
+      EMAIL_TIMEOUT_SECONDS: ${EMAIL_TIMEOUT_SECONDS:-15}
     ports:
-      - "${NOTIFICATION_PORT}:${NOTIFICATION_PORT}"
+      - "${NOTIFICATION_SERVICE_PORT:-5533}:${NOTIFICATION_SERVICE_PORT:-5533}"
     volumes:
-      - ./backend/notification_service:/notification_service
-      - ./backend/contracts:/contracts
-    # depends_on:
-    #   - auth_service
-    #   - pg:
-    #       condition: service_healthy
+      - ./logs:/app/logs
+    depends_on:
+      notification_db:
+        condition: service_healthy
+    networks:
+      - backend_network
 
+  booking_service:
+    build:
+      context: ./backend
+      dockerfile: ./services/booking_service/Dockerfile
+      args:
+        BOOKING_SERVICE_PORT: ${BOOKING_SERVICE_PORT:-5535}
+    container_name: booking_service
+    environment:
+      BOOKING_DB_NAME: ${BOOKING_DB_NAME}
+      BOOKING_DB_USERNAME: ${BOOKING_DB_USERNAME}
+      BOOKING_DB_PASSWORD: ${BOOKING_DB_PASSWORD}
+      BOOKING_DB_HOST: booking_db
+      BOOKING_DB_PORT: ${BOOKING_DB_PORT}
+      BOOKING_SERVICE_HOST: 0.0.0.0
+      BOOKING_SERVICE_PORT: ${BOOKING_SERVICE_PORT:-5535}
+    ports:
+      - "${BOOKING_SERVICE_PORT:-5535}:${BOOKING_SERVICE_PORT:-5535}"
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      booking_db:
+        condition: service_healthy
+    networks:
+      - backend_network
+
+  schedule_service:
+    build:
+      context: ./backend
+      dockerfile: ./services/schedule_service/Dockerfile
+      args:
+        SCHEDULE_SERVICE_PORT: ${SCHEDULE_SERVICE_PORT:-5536}
+    container_name: schedule_service
+    environment:
+      SCHEDULE_DB_NAME: ${SCHEDULE_DB_NAME}
+      SCHEDULE_DB_USERNAME: ${SCHEDULE_DB_USERNAME}
+      SCHEDULE_DB_PASSWORD: ${SCHEDULE_DB_PASSWORD}
+      SCHEDULE_DB_HOST: schedule_db
+      SCHEDULE_DB_PORT: ${SCHEDULE_DB_PORT}
+      SCHEDULE_SERVICE_HOST: 0.0.0.0
+      SCHEDULE_SERVICE_PORT: ${SCHEDULE_SERVICE_PORT:-5536}
+      AUTH_SERVICE_HOST: auth_service
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT:-5534}
+      BOOKING_SERVICE_HOST: booking_service
+      BOOKING_SERVICE_PORT: ${BOOKING_SERVICE_PORT:-5535}
+    ports:
+      - "${SCHEDULE_SERVICE_PORT:-5536}:${SCHEDULE_SERVICE_PORT:-5536}"
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      schedule_db:
+        condition: service_healthy
+      auth_service:
+        condition: service_healthy
+      booking_service:
+        condition: service_healthy
+    networks:
+      - backend_network
 
   gateway:
-    env_file: ".env"
     build:
       context: ./backend
-      dockerfile: ./gateway/Dockerfile
+      dockerfile: ./app/Dockerfile
       args:
-        - GATEWAY_PORT:${GATEWAY_PORT}
-        - AUTH_PORT:${AUTH_PORT}
-        - NOTIFICATION_PORT:${NOTIFICATION_PORT}
-    container_name: HSE_gateway
-    ports:
-      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
-    volumes:
-      - ./backend/gateway:/gateway
-      - ./backend/gateway/app:/app/app
-      - ./backend/contracts:/contracts
-    depends_on:
-      - auth_service
-      - notification_service
-      # - pg:
-      #     condition: service_healthy
-  
-  pg:
-    image: postgres:16.4
-    env_file: ".env"
+        GATEWAY_PORT: ${GATEWAY_PORT:-8000}
+    container_name: gateway
     environment:
-      - POSTGRES_DB:${POSTGRES_DB}
-      - POSTGRES_USER:${POSTGRES_USER}
-      - POSTGRES_PW:${POSTGRES_PASSWORD}
+      GATEWAY_HOST: 0.0.0.0
+      GATEWAY_PORT: ${GATEWAY_PORT:-8000}
+      AUTH_SERVICE_HOST: auth_service
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT:-5534}
+      NOTIFICATION_SERVICE_HOST: notification_service
+      NOTIFICATION_SERVICE_PORT: ${NOTIFICATION_SERVICE_PORT:-5533}
+      BOOKING_SERVICE_HOST: booking_service
+      BOOKING_SERVICE_PORT: ${BOOKING_SERVICE_PORT:-5535}
+      SCHEDULE_SERVICE_HOST: schedule_service
+      SCHEDULE_SERVICE_PORT: ${SCHEDULE_SERVICE_PORT:-5536}
+      AUTH_JWT_SECRET_KEY: ${AUTH_JWT_SECRET_KEY}
+      AUTH_JWT_ALGORITHM: ${AUTH_JWT_ALGORITHM}
+      AUTH_JWT_ACCESS_EXPIRE_MINUTES: ${AUTH_JWT_ACCESS_EXPIRE_MINUTES}
+      AUTH_JWT_REFRESH_EXPIRE_DAYS: ${AUTH_JWT_REFRESH_EXPIRE_DAYS}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      AUTH_COOKIE_SAMESITE: ${AUTH_COOKIE_SAMESITE:-lax}
+      AUTH_COOKIE_DOMAIN: ${AUTH_COOKIE_DOMAIN:-}
+      GATEWAY_CORS_ORIGINS: ${GATEWAY_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
     ports:
-      - "${POSTGRES_PORT_HOST}:${POSTGRES_PORT_CONTAINER}"
+      - "${GATEWAY_PORT:-8000}:${GATEWAY_PORT:-8000}"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-    
+      - ./logs:/app/logs
+    depends_on:
+      auth_service:
+        condition: service_healthy
+      notification_service:
+        condition: service_healthy
+      booking_service:
+        condition: service_healthy
+      schedule_service:
+        condition: service_healthy
+    networks:
+      - backend_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api/v1}
+    container_name: frontend
+    environment:
+      GATEWAY_HOST: gateway
+      GATEWAY_PORT: ${GATEWAY_PORT:-8000}
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - backend_network
+
 volumes:
-  pgdata:
+  auth_db_data:
+  booking_db_data:
+  schedule_db_data:
+  notification_db_data:
+
+networks:
+  backend_network:
+    driver: bridge
