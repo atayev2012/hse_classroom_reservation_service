@@ -1,0 +1,8 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+grpcio==1.68.1
+grpcio-tools==1.68.1
+protobuf==5.29.2
+python-dotenv==1.0.1
+PyJWT==2.10.1
+pydantic[email]==2.10.4
