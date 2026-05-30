@@ -9,6 +9,7 @@
 # Python
 __pycache__/
 .venv/
+.ruff_cache
 
 # Environment variables
 .env
