@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+<body style="margin:0;background:#d7ecf6;font-family:Arial,Helvetica,sans-serif;color:#0f4f7d;">
+  <div style="max-width:680px;margin:0 auto;padding:32px 18px;">
+    <div style="padding:0 0 18px 0;font-size:14px;color:#6c8797;">НИУ ВШЭ Нижний Новгород</div>
+    <div style="background:#ffffff;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(15,79,125,0.08);">
+      <h1 style="margin:0 0 12px;font-size:24px;line-height:1.25;color:#0f4f7d;">Вход выполнен</h1>
+      <p style="margin:0;color:#4c6d80;font-size:15px;line-height:1.6;">В вашу учетную запись был выполнен успешный вход.</p>
+      <div style="margin-top:22px;background:#edf5f9;border-radius:10px;padding:18px;">
+        <div style="font-size:13px;color:#6c8797;">Почта</div>
+        <div style="font-size:17px;font-weight:700;color:#0f4f7d;">{{ email }}</div>
+        <div style="height:12px;"></div>
+        <div style="font-size:13px;color:#6c8797;">Дата и время</div>
+        <div style="font-size:17px;font-weight:700;color:#0f4f7d;">{{ request_datetime }}</div>
+      </div>
+      <p style="margin:22px 0 0;color:#4c6d80;font-size:14px;line-height:1.6;">Если это были не вы, обратитесь к администратору.</p>
+    </div>
+    <div style="margin-top:18px;color:#6c8797;font-size:12px;">IP: {{ ip_address }} · Устройство: {{ device_info }}</div>
+  </div>
+</body>
+</html>

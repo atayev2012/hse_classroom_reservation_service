@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<body style="margin:0;background:#d7ecf6;font-family:Arial,Helvetica,sans-serif;color:#0f4f7d;">
+  <div style="max-width:760px;margin:0 auto;padding:32px 18px;">
+    <div style="padding:0 0 18px 0;font-size:14px;color:#6c8797;">Page / Schedule Settings</div>
+    <div style="background:#ffffff;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(15,79,125,0.08);">
+      <h1 style="margin:0 0 6px;font-size:24px;color:#0f4f7d;">{{ action_title }}</h1>
+      <p style="margin:0 0 22px;color:#4c6d80;font-size:15px;line-height:1.6;">{{ schedule_name }} · {{ module_name }} · {{ group_name }}</p>
+      <table role="presentation" style="width:100%;border-spacing:8px;border-collapse:separate;">
+        <tr>
+          <td style="background:#cfe5f1;border-radius:8px;padding:14px;width:34%;font-weight:700;color:#0f4f7d;">{{ time_slot }}</td>
+          <td style="background:#e6eaec;border-radius:8px;padding:14px;color:#0f4f7d;">{{ title }}</td>
+        </tr>
+        <tr>
+          <td style="background:#edf5f9;border-radius:8px;padding:14px;color:#4c6d80;">{{ date }}</td>
+          <td style="background:#edf5f9;border-radius:8px;padding:14px;color:#4c6d80;">{{ item_type }} · {{ instructor_name }}</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="background:#edf5f9;border-radius:8px;padding:14px;color:#4c6d80;">{{ building_address }}, аудитория {{ room_number }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

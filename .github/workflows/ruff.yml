@@ -1,0 +1,31 @@
+name: Python lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Ruff
+        run: python -m pip install --upgrade ruff
+
+      - name: Run Ruff
+        run: >
+          ruff check backend
+          --ignore F401
+          --exclude "**/*_pb2.py"
+          --exclude "**/*_pb2_grpc.py"
+          --exclude "**/migrations/versions/*.py"
