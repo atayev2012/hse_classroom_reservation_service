@@ -1,0 +1,72 @@
+name: Deploy to VPS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script: |
+            set -euo pipefail
+
+            sudo apt-get update
+            sudo apt-get install -y ca-certificates curl git nginx certbot python3-certbot-nginx
+
+            if ! command -v docker >/dev/null 2>&1; then
+              curl -fsSL https://get.docker.com | sudo sh
+            fi
+
+            sudo mkdir -p "${{ secrets.DEPLOY_PATH }}"
+            sudo chown "$USER":"$USER" "${{ secrets.DEPLOY_PATH }}"
+
+            if [ ! -d "${{ secrets.DEPLOY_PATH }}/.git" ]; then
+              git clone "${{ github.server_url }}/${{ github.repository }}.git" "${{ secrets.DEPLOY_PATH }}"
+            fi
+
+            cd "${{ secrets.DEPLOY_PATH }}"
+            git fetch origin main
+            git reset --hard origin/main
+
+            cat > .env <<'ENV_FILE'
+            ${{ secrets.PRODUCTION_ENV_FILE }}
+            ENV_FILE
+
+            mkdir -p logs
+            docker compose up -d --build
+
+            sudo tee /etc/nginx/sites-available/hse-booking >/dev/null <<NGINX
+            server {
+                listen 80;
+                server_name ${{ secrets.DEPLOY_DOMAIN }};
+
+                location / {
+                    proxy_pass http://127.0.0.1:${{ secrets.FRONTEND_PORT }};
+                    proxy_set_header Host \$host;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                }
+            }
+            NGINX
+
+            sudo ln -sf /etc/nginx/sites-available/hse-booking /etc/nginx/sites-enabled/hse-booking
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+            sudo certbot --nginx \
+              --non-interactive \
+              --agree-tos \
+              --redirect \
+              -m "${{ secrets.CERTBOT_EMAIL }}" \
+              -d "${{ secrets.DEPLOY_DOMAIN }}"
