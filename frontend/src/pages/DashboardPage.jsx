@@ -65,12 +65,12 @@ function mapScheduleItems(items = []) {
   }));
 }
 
-function mapBookings(bookings = [], buildings = []) {
+function mapBookings(bookings = [], buildings = [], rooms = []) {
   return bookings.map((booking, index) => ({
     id: booking.id || `booking-${index}`,
     title: booking.event_title || 'Бронирование аудитории',
     slot: formatSlot(booking.event_time_slot),
-    room: booking.room_id || 'Аудитория',
+    room: booking.room_number || rooms.find((room) => Number(room.id) === Number(booking.room_id))?.room_number || 'Аудитория',
     address: booking.building_address || booking.address || buildings.find((building) => Number(building.id) === Number(booking.building_id))?.address || '',
     meta: [booking.building_id, booking.status || 'Активна'].filter(Boolean).join(' · ')
   }));
@@ -127,14 +127,16 @@ export default function DashboardPage() {
         currentUserId
           ? bookingApi.bookings.list({ event_date: date, user_id: currentUserId })
           : Promise.resolve({ bookings: [] }),
-        bookingApi.buildings.list({ limit: 1000 }).catch(() => null)
-      ]).then(([response, buildingsResponse]) => {
+        bookingApi.buildings.list({ limit: 1000 }).catch(() => null),
+        bookingApi.rooms.list({ limit: 1000 }).catch(() => null)
+      ]).then(([response, buildingsResponse, roomsResponse]) => {
         const mapped = mapBookings(
           (response?.bookings || []).filter((booking) => (
             !isScheduleBooking(booking) &&
             (!currentUserId || Number(booking.user_id) === currentUserId)
           )),
-          buildingsResponse?.buildings || []
+          buildingsResponse?.buildings || [],
+          roomsResponse?.rooms || []
         );
         setBookings(mapped);
       }).catch(() => {
