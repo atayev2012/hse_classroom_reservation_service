@@ -38,8 +38,13 @@ export default function BookingModal({
   onClose,
   onSubmit
 }) {
-  const activeBuildings = buildings.length ? buildings : [{ id: 1, name: 'Костина' }];
-  const initialBuildingId = booking?.building_id || activeBuildings[0]?.id || '';
+  const activeBuildings = buildings;
+  const bookingBuildingExists = activeBuildings.some((building) => (
+    Number(building.id) === Number(booking?.building_id)
+  ));
+  const initialBuildingId = bookingBuildingExists
+    ? booking?.building_id
+    : activeBuildings[0]?.id || '';
   const [form, setForm] = useState({
     building_id: String(initialBuildingId || ''),
     room_id: String(booking?.room_id || ''),
@@ -144,7 +149,8 @@ export default function BookingModal({
         <div className="booking-form-box booking-form-box--expanded">
           <label>
             <span>Корпус</span>
-            <select value={form.building_id} onChange={(event) => updateForm('building_id', event.target.value)}>
+            <select value={form.building_id} onChange={(event) => updateForm('building_id', event.target.value)} disabled={!activeBuildings.length}>
+              {!activeBuildings.length && <option value="">Нет доступных корпусов</option>}
               {activeBuildings.map((building) => (
                 <option value={building.id} key={building.id}>{building.name}</option>
               ))}
@@ -201,7 +207,7 @@ export default function BookingModal({
             <CircleX size={17} />
             Отменить
           </button>
-          <button className="button button--primary" type="button" onClick={submitForm} disabled={isSaving}>
+          <button className="button button--primary" type="button" onClick={submitForm} disabled={isSaving || !activeBuildings.length}>
             <CheckCircle2 size={17} />
             {mode === 'edit' ? 'Сохранить' : 'Забронировать'}
           </button>

@@ -266,8 +266,8 @@ export default function ScheduleSettingsPage() {
     }
     if (schedulesResponse?.schedules) setSchedules(schedulesResponse.schedules);
     if (itemsResponse?.schedule_items) setScheduleItems(itemsResponse.schedule_items);
-    if (buildingsResponse?.buildings?.length) setBuildings(buildingsResponse.buildings);
-    if (roomsResponse?.rooms?.length) setRooms(roomsResponse.rooms);
+    if (buildingsResponse?.buildings) setBuildings(buildingsResponse.buildings);
+    if (roomsResponse?.rooms) setRooms(roomsResponse.rooms);
     if (usersResponse?.users?.length) setEmployees(usersResponse.users);
     setIsLoading(false);
   }

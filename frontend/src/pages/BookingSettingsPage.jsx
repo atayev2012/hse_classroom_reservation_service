@@ -127,7 +127,7 @@ export default function BookingSettingsPage() {
       ]);
       if (buildingsResponse?.buildings) {
         setAllBuildings(buildingsResponse.buildings);
-        setBuildingOptions((current) => buildingsResponse.buildings.length ? buildingsResponse.buildings : current);
+        setBuildingOptions(buildingsResponse.buildings);
       }
       if (equipmentResponse?.equipment) {
         setAllEquipment(equipmentResponse.equipment);
@@ -263,7 +263,12 @@ export default function BookingSettingsPage() {
       bookings: bookingApi.bookings
     }[kind];
     await api.remove(item.id).catch(() => {});
-    if (kind === 'buildings') setAllBuildings((current) => current.filter((row) => row.id !== item.id));
+    if (kind === 'buildings') {
+      setAllBuildings((current) => current.filter((row) => row.id !== item.id));
+      setBuildingOptions((current) => current.filter((row) => row.id !== item.id));
+      setAllRooms((current) => current.filter((row) => Number(row.building_id) !== Number(item.id)));
+      setRooms((current) => current.filter((row) => Number(row.building_id) !== Number(item.id)));
+    }
     if (kind === 'rooms') setAllRooms((current) => current.filter((row) => row.id !== item.id));
     if (kind === 'equipment') setAllEquipment((current) => current.filter((row) => row.id !== item.id));
     if (kind === 'bookings') setAllBookings((current) => current.filter((row) => row.id !== item.id));
@@ -580,7 +585,7 @@ function SimpleModal({ title, initialValues, fields, onClose, onSubmit }) {
 
 function RoomModal({ initialValues, buildings, equipmentOptions, onClose, onSubmit }) {
   const [form, setForm] = useState(initialValues);
-  const canSubmit = form.building_id && form.room_number.trim();
+  const canSubmit = buildings.length > 0 && form.building_id && form.room_number.trim();
 
   function setField(key, value) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -615,8 +620,8 @@ function RoomModal({ initialValues, buildings, equipmentOptions, onClose, onSubm
         <div className="user-form-grid">
           <label>
             <span>Корпус</span>
-            <select value={form.building_id} onChange={(event) => setField('building_id', event.target.value)}>
-              <option value="">Выберите корпус</option>
+            <select value={form.building_id} onChange={(event) => setField('building_id', event.target.value)} disabled={!buildings.length}>
+              <option value="">{buildings.length ? 'Выберите корпус' : 'Нет доступных корпусов'}</option>
               {buildings.map((building) => <option key={building.id} value={building.id}>{building.name}</option>)}
             </select>
           </label>
